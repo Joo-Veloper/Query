@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.entity.Hello;
 import study.querydsl.entity.QHello;
@@ -12,7 +13,8 @@ import study.querydsl.entity.QHello;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-@Transactional
+@Transactional //롤백 하기 때문에 commit 사용
+@Commit
 class QueryApplicationTests {
     //@PersistenceContext -> JAVA 표준 스펙에 사용
     @Autowired // spring 최신 -> 똑같은 기능으로 동작함!
