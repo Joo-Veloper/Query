@@ -130,6 +130,34 @@ public class QuerydslBasicTest {
                 .selectFrom(member)
                 .fetchCount();
     }
+    /**
+     화면 정렬 순서
+     1. 회원 나이 내림차순
+     2. 회원 이름 올림차순
+     * 단 2에서 회원 이름이 없으면 마지막 출력
+   **/
+
+    @Test
+    public void sort(){
+        em.persist(new Member(null, 100));
+        em.persist(new Member("member5" , 100));
+        em.persist(new Member("member6" , 100));
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .where(member.age.eq(100))   // 나이가 100인 사람 조회
+                // nullLast , nullFirst 는 데이터 순서 여부
+                .orderBy(member.age.desc(), member.username.asc().nullsLast())
+                // .orderBy(member.age.desc(), member.username.asc().nullsFirst())
+                .fetch(); //메서드 사용하여 쿼리 실행후 결과!
+
+        Member member5 = result.get(0);
+        Member member6 = result.get(1);
+        Member memberNull = result.get(2);
+        assertThat(member5.getUsername()).isEqualTo("member5");
+        assertThat(member6.getUsername()).isEqualTo("member6");
+        assertThat(memberNull.getUsername()).isNull();
+    }
 
 
 }
