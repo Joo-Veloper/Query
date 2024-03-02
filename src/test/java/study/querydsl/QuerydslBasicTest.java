@@ -104,26 +104,26 @@ public class QuerydslBasicTest {
 
     @Test
     public void resultFetch() {
-//        List<Member> fetch = queryFactory
-//                .selectFrom(member)
-//                .fetch();
-//
-//        // 단건
-//        Member fetchOne = queryFactory
-//                .selectFrom(member)
-//                .fetchOne();
-//
-//        // .limit(1).fetchOne();과 같은 역할
-//        Member fetchFirst = queryFactory
-//                .selectFrom(member)
-//                .fetchFirst();
+        List<Member> fetch = queryFactory
+                .selectFrom(member)
+                .fetch();
 
-//        QueryResults<Member> results = queryFactory
-//                .selectFrom(member)
-//                .fetchResults();
+        // 단건
+        Member fetchOne = queryFactory
+                .selectFrom(member)
+                .fetchOne();
 
-//        results.getTotal();
-//        List<Member> content = results.getResults();
+        // .limit(1).fetchOne();과 같은 역할
+        Member fetchFirst = queryFactory
+                .selectFrom(member)
+                .fetchFirst();
+
+        QueryResults<Member> results = queryFactory
+                .selectFrom(member)
+                .fetchResults();
+
+        results.getTotal();
+        List<Member> content = results.getResults();
 
         // select절을 count로 바꿈
         long total = queryFactory
