@@ -70,7 +70,7 @@ NULL 값은 정렬 후에 가장 앞에 위치하도록 합니다.</br>
 기본적으로 NULL 값은 정렬 시 가장 마지막에 나타납니다.</br>
 
 
-건수 제한 & 전체 조회
+건수 제한 & 전체 조회</br>
 ```
 ```java
 @Test
@@ -100,7 +100,33 @@ assertThat(queryResults.getOffset()).isEqualTo(1);
 assertThat(queryResults.getResults().size()).isEqualTo(2);
 }
 ```
-주의 페이징 쿼리 작성시 데이터 조회 쿼리는 여러 테이블을 조인하지만 Count는 조인이 필요 없는 경우 있음 count 쿼리에 조인이 필요없는 최적화 할때 count 전용 쿼리 별도 작성 !
+주의 페이징 쿼리 작성시 데이터 조회 쿼리는 여러 테이블을 조인하지만 Count는 조인이 필요 없는 경우 있음 count 쿼리에 조인이 필요없는 최적화 할때 count 전용 쿼리 별도 작성 !</br>
+
+
+### 조인 - on절
+JPA 2.1에서는 ON 절을 사용하여 조인 대상 필터링 및 연관관계 없는 엔티티의 외부 조인을 할 수 있습니다.</br>
+
+조인 대상 필터링</br>
+```
+java
+Copy code
+SELECT e
+FROM Employee e
+LEFT JOIN e.department d ON d.active = true
+```
+Employee 엔티티를 Department 엔티티와 외부 조인하고 있습니다.</br> 
+그러나 Department가 활성 상태인 경우에만 조인 대상으로 고려</br>
+
+연관관계 없는 엔티티 외부 조인</br>
+```
+java
+Copy code
+SELECT c, a
+FROM Customer c
+LEFT JOIN Address a ON c.address_id = a.id
+```
+위의 예제에서는 Customer 엔티티와 Address 엔티티 사이에 직접적인 연관관계가 없는 경우에도 Customer 엔티티와 Address 엔티티를 조인하고 있습니다. 이러한 경우에는 ON 절을 사용하여 수동으로 조인 조건을 지정할 수 있습니다.
+
 
 
 
