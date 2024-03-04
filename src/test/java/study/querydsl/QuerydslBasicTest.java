@@ -50,11 +50,11 @@ public class QuerydslBasicTest {
     }
 
     @Test
-    public void startJPQL(){
+    public void startJPQL() {
         //member 1을 찾아라.
         String qlString =
                 "select  m from Member m " +
-                "where m.username = :username";
+                        "where m.username = :username";
         Member findMember = em.createQuery(qlString, Member.class)
                 .setParameter("username", "member1")
                 .getSingleResult();
@@ -62,7 +62,7 @@ public class QuerydslBasicTest {
     }
 
     @Test
-    public void startQuerydsl(){
+    public void startQuerydsl() {
 
         QMember m1 = new QMember("m1");
 
@@ -75,8 +75,9 @@ public class QuerydslBasicTest {
 
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
+
     @Test
-    public void search(){
+    public void search() {
         Member findMember = queryFactory
                 .selectFrom(member)
                 .where(member.username.eq("member1")
@@ -85,8 +86,9 @@ public class QuerydslBasicTest {
 
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
+
     @Test
-    public void searchAndParam(){
+    public void searchAndParam() {
         Member findMember = queryFactory
                 .selectFrom(member)
                 .where(
@@ -133,18 +135,19 @@ public class QuerydslBasicTest {
                 .selectFrom(member)
                 .fetchCount();
     }
+
     /**
-     화면 정렬 순서
-     1. 회원 나이 내림차순
-     2. 회원 이름 올림차순
+     * 화면 정렬 순서
+     * 1. 회원 나이 내림차순
+     * 2. 회원 이름 올림차순
      * 단 2에서 회원 이름이 없으면 마지막 출력
-   **/
+     **/
 
     @Test
-    public void sort(){
+    public void sort() {
         em.persist(new Member(null, 100));
-        em.persist(new Member("member5" , 100));
-        em.persist(new Member("member6" , 100));
+        em.persist(new Member("member5", 100));
+        em.persist(new Member("member6", 100));
 
         List<Member> result = queryFactory
                 .selectFrom(member)
@@ -190,9 +193,10 @@ public class QuerydslBasicTest {
         assertThat(queryResults.getOffset()).isEqualTo(1);
         assertThat(queryResults.getResults().size()).isEqualTo(2);
     }
+
     /*집합 */
     @Test
-    public void aggregation(){
+    public void aggregation() {
         // 데이터 타입이 단일이 아닌 여러 개가 들어오기 때문에 Tuple 사용! -> 실무에서 튜플 사용 x DTO에서 뽑아서 사용
         List<Tuple> result = queryFactory
                 .select(
@@ -217,7 +221,7 @@ public class QuerydslBasicTest {
      * 팀의 이름과 각 팀의 평균 연령을 구해라
      **/
     @Test
-    public void group() throws Exception{
+    public void group() throws Exception {
         List<Tuple> result = queryFactory
                 .select(team.name, member.age.avg())
                 .from(member)
@@ -237,6 +241,7 @@ public class QuerydslBasicTest {
     }
 
     /*Join*/
+
     /**
      * 팀 A 에 소속된 모든 회원
      **/
@@ -251,6 +256,7 @@ public class QuerydslBasicTest {
                 .extracting("username")
                 .containsExactly("member1", "member2");
     }
+
     /*LEFT JOIN*/
     @Test
     public void LeftJoin() {
@@ -263,12 +269,13 @@ public class QuerydslBasicTest {
                 .extracting("username")
                 .containsExactly("member1", "member2");
     }
+
     /**
      * 세타 조인
      * 회원의 이름이 팀 이름과 같은 회원 조회
      */
     @Test
-    public void theta_join(){
+    public void theta_join() {
         em.persist(new Member("teamA"));
         em.persist(new Member("teamB"));
 
@@ -280,6 +287,51 @@ public class QuerydslBasicTest {
         assertThat(result)
                 .extracting("username")
                 .containsExactly("teamA", "teamB");
+    }
+
+    /*Join On
+     * left join만 의미가 있음
+     * innerJoin이면 where때 거르면 똑같기 때문에 Left에서 on절 사용
+     */
+    /**1. Join 대상 필터링
+     * 2. 연관관계 없는 엔티티 외부 조인
+     **/
+
+    /**
+     * 예> 회원과 팀 조인, 팀명이 TeamA인 Team Join Member 전체 조회
+     * JPQL : select m, t from Member m left join m.team t on t.name = 'teamA'
+     **/
+    @Test
+    public void join_on_filtering() {
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(member.team, team).on(team.name.eq("teamA"))
+                .fetch();
+
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
+    }
+
+    /**
+     * join 대상 필터링 시
+     * 외부가 아닌 내부를 사용시 where절 필터링과 동일
+     * 내부 조인일때는 where절로 해결 !
+     */
+    @Test
+    public void join_filtering() {
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .join(member.team, team)
+                .where(team.name.eq("teamA")) // 데이터를 teamA것만 가져옴
+//                .join(member.team, team).on(team.name.eq("teamA"))
+                .fetch();
+
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
     }
 
 }
