@@ -500,4 +500,31 @@ public class QuerydslBasicTest {
         }
     }
 
+    /*상수, 문자 더하기.*/
+
+    @Test
+    public void constant() {
+        List<Tuple> result = queryFactory
+                .select(member.username, Expressions.constant("A"))
+                .from(member)
+                .fetch();
+
+        for(Tuple tuple : result){
+            System.out.println("tuple = " + tuple);
+        }
+    }
+
+    @Test
+    public void concat() {
+        //{membername}_{age}
+        List<String> result = queryFactory
+                // Enum 타입에 값이 나오지 않을때 String Value를 사용!!
+                .select(member.username.concat("_").concat(member.age.stringValue()))
+                .from(member)
+                .where(member.username.eq("member1"))
+                .fetch();
+        for (String s : result){
+            System.out.println("s = " + s);
+        }
+    }
 }
