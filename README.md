@@ -50,6 +50,7 @@ count 수만을 반환합니다.</br>
 
 
 ### 정렬, 페이징
+---
 desc(), asc(), nullsLast(), 그리고 nullsFirst()는 Querydsl에서 사용되는 정렬 관련 메서드입니다. </br>
 
 desc()</br>
@@ -99,7 +100,7 @@ assertThat(queryResults.getOffset()).isEqualTo(1);
 assertThat(queryResults.getResults().size()).isEqualTo(2);
 }
 ```
-주의 페이징 쿼리 작성시 데이터 조회 쿼리는 여러 테이블을 조인하지만 Count는 조인이 필요 없느 ㄴ경우 있음 count 쿼리에 조인이 필요없는 최적화 할때 count 전용 쿼리 별도 작성 !
+주의 페이징 쿼리 작성시 데이터 조회 쿼리는 여러 테이블을 조인하지만 Count는 조인이 필요 없는 경우 있음 count 쿼리에 조인이 필요없는 최적화 할때 count 전용 쿼리 별도 작성 !
 
 
 
