@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import study.querydsl.dto.MemberDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
@@ -551,6 +552,21 @@ public class QuerydslBasicTest {
             Integer age = tuple.get(member.age);
             System.out.println("username = " + username);
             System.out.println("age = " + age);
+        }
+    }
+
+    /* 프로젝션 DTO*/
+    /** 순수 JPA DTO 조회시 new사용
+     * DTO의 패키지명 다 적는 거 -> 불편.....
+     * 생성자 방식만 지원 -> 불편.....*/
+
+    @Test
+    public void findDtoByJPQL() {
+        // new operation 활용
+        List<MemberDto> result = em.createQuery("select new study.querydsl.dto.MemberDto(m.username, m.age) from Member m", MemberDto.class)
+                .getResultList();
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
         }
     }
 }
