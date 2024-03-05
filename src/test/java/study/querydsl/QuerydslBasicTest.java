@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.QMemberDto;
 import study.querydsl.dto.UserDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
@@ -351,7 +352,7 @@ public class QuerydslBasicTest {
      */
 
     /*일반 조인 : leftJoin(member.team, team)
-    * ON 조인 : from(member).leftJoin(team).on(xxx)*/
+     * ON 조인 : from(member).leftJoin(team).on(xxx)*/
     @Test
     public void join_on_no_relation() {
         em.persist(new Member("teamA"));
@@ -421,6 +422,7 @@ public class QuerydslBasicTest {
         assertThat(result).extracting("age")
                 .containsExactly(40);
     }
+
     /**
      * 나이가 평균 이상인 회원
      **/
@@ -436,8 +438,9 @@ public class QuerydslBasicTest {
                 .fetch();
 
         assertThat(result).extracting("age")
-                .containsExactly(30,40);
+                .containsExactly(30, 40);
     }
+
     /**
      * 나이가 평균 이상인 회원
      **/
@@ -454,15 +457,15 @@ public class QuerydslBasicTest {
                 .fetch();
 
         assertThat(result).extracting("age")
-                .containsExactly(20,30,40);
+                .containsExactly(20, 30, 40);
     }
 
     @Test
-    public void selectSubQuery(){
+    public void selectSubQuery() {
 
         QMember memberSub = new QMember("memberSub");
 
-        List<Tuple> result =queryFactory
+        List<Tuple> result = queryFactory
                 .select(member.username,
                         select(memberSub.age.avg())
                                 .from(memberSub))
@@ -473,9 +476,10 @@ public class QuerydslBasicTest {
             System.out.println("tuple = " + tuple);
         }
     }
+
     /*CASE*/
     @Test
-    public void basicCase(){
+    public void basicCase() {
         List<String> result = queryFactory
                 .select(member.age
                         .when(10).then("열살")
@@ -483,7 +487,7 @@ public class QuerydslBasicTest {
                         .otherwise("기타"))
                 .from(member)
                 .fetch();
-        for(String s : result){
+        for (String s : result) {
             System.out.println("s = " + s);
         }
 
@@ -499,7 +503,7 @@ public class QuerydslBasicTest {
                 )
                 .from(member)
                 .fetch();
-        for(String s : result){
+        for (String s : result) {
             System.out.println("s = " + s);
         }
     }
@@ -513,7 +517,7 @@ public class QuerydslBasicTest {
                 .from(member)
                 .fetch();
 
-        for(Tuple tuple : result){
+        for (Tuple tuple : result) {
             System.out.println("tuple = " + tuple);
         }
     }
@@ -527,13 +531,13 @@ public class QuerydslBasicTest {
                 .from(member)
                 .where(member.username.eq("member1"))
                 .fetch();
-        for (String s : result){
+        for (String s : result) {
             System.out.println("s = " + s);
         }
     }
-    
-    /*프로젝션 대상이 하나인것*/
-    
+
+    /*프로젝션 대상이 하나일때 */
+
     @Test
     public void simpleProjection() {
         List<String> result = queryFactory
@@ -545,9 +549,13 @@ public class QuerydslBasicTest {
             System.out.println("s = " + s);
         }
     }
-    /** 프로젝션 = 원하는 것만 딱 가져오는 것*/
+
+    /**
+     * 프로젝션 = 원하는 것만 딱 가져오는 것
+     * 프로젝션 대상이 두 개 이상일 때
+     */
     @Test
-    public void tupleProjection(){
+    public void tupleProjection() {
         List<Tuple> result = queryFactory
                 .select(member.username, member.age)
                 .from(member)
@@ -561,9 +569,12 @@ public class QuerydslBasicTest {
     }
 
     /* 프로젝션 DTO*/
-    /** 순수 JPA DTO 조회시 new사용
+
+    /**
+     * 순수 JPA DTO 조회시 new사용
      * DTO의 패키지명 다 적는 거 -> 불편.....
-     * 생성자 방식만 지원 -> 불편.....*/
+     * 생성자 방식만 지원 -> 불편.....
+     */
 
     @Test
     public void findDtoByJPQL() {
@@ -574,9 +585,10 @@ public class QuerydslBasicTest {
             System.out.println("memberDto = " + memberDto);
         }
     }
+
     /* query DSL - Property 활용*/
     @Test
-    public void findDtoSetter(){
+    public void findDtoSetter() {
         List<MemberDto> result = queryFactory
                 .select(Projections.bean(MemberDto.class,
                         member.username,
@@ -589,9 +601,12 @@ public class QuerydslBasicTest {
     }
 
     /* query DSL - Field 활용*/
-    /** Getter, Setter 없어도 됨!*/
+
+    /**
+     * Getter, Setter 없어도 됨!
+     */
     @Test
-    public void findDtoByField(){
+    public void findDtoByField() {
         List<MemberDto> result = queryFactory
                 .select(Projections.fields(MemberDto.class,
                         member.username,
@@ -603,10 +618,12 @@ public class QuerydslBasicTest {
         }
     }
 
-    /** member.username 하면 username 값이 null로 출력됨 userDto에서 username이 아닌 name으로 해놓았기 때문
-     * 이 방벙을 해결하기 위해선 member.username.as("name")*/
+    /**
+     * member.username 하면 username 값이 null로 출력됨 userDto에서 username이 아닌 name으로 해놓았기 때문
+     * 이 방벙을 해결하기 위해선 member.username.as("name")
+     */
     @Test
-    public void findUserDto(){
+    public void findUserDto() {
         List<UserDto> result = queryFactory
                 .select(Projections.fields(UserDto.class,
                         member.username.as("name"),
@@ -617,9 +634,10 @@ public class QuerydslBasicTest {
             System.out.println("userDto = " + userDto);
         }
     }
+
     /*ExpressionUtils*/
     @Test
-    public void findUserDto2(){
+    public void findUserDto2() {
         QMember memberSub = new QMember("memberSub");
         List<UserDto> result = queryFactory
                 .select(Projections.fields(UserDto.class,
@@ -627,7 +645,7 @@ public class QuerydslBasicTest {
 
                         ExpressionUtils.as(JPAExpressions
                                 .select(memberSub.age.max())
-                                .from(memberSub),"age"))
+                                .from(memberSub), "age"))
                 )
                 .from(member)
                 .fetch();
@@ -635,13 +653,31 @@ public class QuerydslBasicTest {
             System.out.println("userDto = " + userDto);
         }
     }
+
     /* query DSL - 생성자 활용*/
     @Test
-    public void findDtoConstructor(){
+    public void findDtoConstructor() {
         List<MemberDto> result = queryFactory
                 .select(Projections.constructor(MemberDto.class,
                         member.username,
                         member.age))
+                .from(member)
+                .fetch();
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    /*프로젝션 반환 - @QueryProjection*/
+
+    /**
+     * 컴파일 오류를 많이 찾을 수 있는 장점이 있음!!!
+     * 단점 - DTO가 Query DSL을 의존해야 한다는 단점 !!!
+     */
+    @Test
+    public void findDtoByQueryProjection() {
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age))
                 .from(member)
                 .fetch();
         for (MemberDto memberDto : result) {
