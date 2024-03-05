@@ -739,23 +739,25 @@ public class QuerydslBasicTest {
 
     private BooleanExpression usernameEq(String usernameCond) {
         // 삼항연산자 = 간단할때는 사용 가능!
-        return usernameCond != null ? member.username.eq(usernameCond):null;
+        return usernameCond != null ? member.username.eq(usernameCond) : null;
 
     }
 
     private BooleanExpression ageEq(Integer ageCond) {
-        return ageCond != null ? member.age.eq(ageCond):null;
+        return ageCond != null ? member.age.eq(ageCond) : null;
     }
 
-    private BooleanExpression allEq(String usernameCond, Integer ageCond){
+    private BooleanExpression allEq(String usernameCond, Integer ageCond) {
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
 
     /*BULK*/
-    /** 조심해야함
+
+    /**
+     * 조심해야함
      * Bulk는 영속성 컨텍스트를 무시하고 DB에 바로 쿼리 나가기 때문에 DB의 상태와 영속성 컨텍스트의 상태가 달라짐
      * 영속성 우선
-     * */
+     */
     @Test
 //    @Commit
     public void bulkUpdate() {
@@ -779,8 +781,9 @@ public class QuerydslBasicTest {
             System.out.println("member1 = " + member1);
         }
     }
+
     @Test
-    public void bulkAdd(){
+    public void bulkAdd() {
         queryFactory
                 .update(member)
                 .set(member.age, member.age.add(1))
@@ -793,5 +796,32 @@ public class QuerydslBasicTest {
                 .delete(member)
                 .where(member.age.gt(18))
                 .execute();
+    }
+
+    @Test
+    public void sqlFunction() {
+        List<String> result = queryFactory
+                .select(
+                        Expressions.stringTemplate(
+                                "function('replace',{0}, {1}, {2})",
+                                member.username, "member", "M"))
+                .from(member)
+                .fetch();
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    public void sqlFunction2() {
+        List<String> result = queryFactory
+                .select(member.username)
+                .from(member)
+//                .where(member.username.eq(Expressions.stringTemplate("function('lower', {0})", member.username)))
+                .where(member.username.eq(member.username.lower()))
+                .fetch();
+        for (String s : result) {
+            System.out.println("s=" + s);
+        }
     }
 }
