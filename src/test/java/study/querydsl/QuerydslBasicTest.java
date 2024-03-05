@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.QMemberDto;
@@ -750,4 +751,47 @@ public class QuerydslBasicTest {
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
 
+    /*BULK*/
+    /** 조심해야함
+     * Bulk는 영속성 컨텍스트를 무시하고 DB에 바로 쿼리 나가기 때문에 DB의 상태와 영속성 컨텍스트의 상태가 달라짐
+     * 영속성 우선
+     * */
+    @Test
+//    @Commit
+    public void bulkUpdate() {
+        //1 member 1 = 10 -> 비회원
+        //2 member 2 = 20 -> 비회원
+        //3 member 3 = 30 -> 유지
+        //4 member 4 = 40 -> 유지
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        em.flush();
+        em.clear();
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .fetch();
+        for (Member member1 : result) {
+            System.out.println("member1 = " + member1);
+        }
+    }
+    @Test
+    public void bulkAdd(){
+        queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+    }
+
+    @Test
+    public void bulkDelete() {
+        long count = queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+    }
 }
